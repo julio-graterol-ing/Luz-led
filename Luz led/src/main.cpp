@@ -11,10 +11,40 @@ void setup() {
 
 //LOOP: Runs continuously in an infinite cycle
 void loop() {
-  digitalWrite (ledPin, HIGH); // Turn the LED ON (set pin to 5V)
-  delay(1000);               // Wait for 1 second (1000 milliseconds)
+ 
+  // 1. LETTER 'S' (Three short blinks)
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(ledPin, HIGH); // Turn the LED ON
+    delay(200);                 // Short duration (200 milliseconds)
+    digitalWrite(ledPin, LOW);  // Turn the LED OFF
+    delay(200);                 // OFF duration between blinks
+  }
 
-  digitalWrite (ledPin, LOW); // Turn the LED OFF (set pin to 0V)
-  delay(1000);               // Wait for 1 second (1000 milliseconds)
 
+  delay(300); //Small pause between letters
+
+
+  //2. LETTER 'O' (Three long blinks)
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(ledPin, HIGH); // Turn the LED ON 
+    delay(600);                 // Long duration (600 milliseconds)
+    digitalWrite(ledPin, LOW);  // Turn the LED OFF
+    delay(600);                 // OFF duration between blinks
+  }
+
+
+  delay(300); //Small pause between letters
+
+
+  //3. LETTER 'S' (Three Short blinks)
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(ledPin, HIGH); // Turn the LED ON
+    delay(200);                 // short duration (200 milliseconds)
+    digitalWrite(ledPin, LOW);  // Turn the LED OFF
+    delay(200);                 // Off duration between blink
+  }
+
+  //4. LONG PAUSE: (Wait 3 seconds before repeating the distress signal )
+  delay(3000);
+  
 } 
