@@ -1,18 +1,20 @@
-#include <Arduino.h>
+#include <Arduino.h>  //Required library for Arduino framework in PlatformIO
 
-// put function declarations here:
-int myFunction(int, int);
+//Hardware definition: Built-in Led is connected to digital pin 13
+const int ledPin = 13; 
 
+//SETUP: Runs once when the microcontroller starts or resets
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  // Configure the digital pin as an OUTPUT to send voltage to the LED
+  pinMode(ledPin, OUTPUT);
 }
 
+//LOOP: Runs continuously in an infinite cycle
 void loop() {
-  // put your main code here, to run repeatedly:
-}
+  digitalWrite (ledPin, HIGH); // Turn the LED ON (set pin to 5V)
+  delay(1000);               // Wait for 1 second (1000 milliseconds)
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
-}
+  digitalWrite (ledPin, LOW); // Turn the LED OFF (set pin to 0V)
+  delay(1000);               // Wait for 1 second (1000 milliseconds)
+
+} 
