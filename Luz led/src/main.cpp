@@ -1,6 +1,6 @@
 #include <Arduino.h>  //Required library for Arduino framework in PlatformIO
 
-//Hardware definition: Built-in Led is connected to digital pin 13
+//Hardware definition: Built-in Led is connected to digital pin 12
 const int ledPin = 13; 
 
 //SETUP: Runs once when the microcontroller starts or resets
