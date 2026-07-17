@@ -7,44 +7,23 @@ const int ledPin = 13;
 void setup() {
   // Configure the digital pin as an OUTPUT to send voltage to the LED
   pinMode(ledPin, OUTPUT);
+
+  // START SERIAL COMMUNICATION: Set the speed to 9600 bits per second
+  Serial.begin(9600);
+
 }
 
-//LOOP: Runs continuously in an infinite cycle
+
 void loop() {
+
+  //Turn the LED ON and send a message to the computer screen
+  digitalWrite(ledPin, HIGH);
+  Serial.println("LED status: ON");
+  delay(1000);
+
+  //Turn the LED OFF and send a message to the computer screen
+  digitalWrite(ledPin, LOW);
+  Serial.println("LED status: OFF");
+  delay(1000);
  
-  // 1. LETTER 'S' (Three short blinks)
-  for (int i = 0; i < 3; i++) {
-    digitalWrite(ledPin, HIGH); // Turn the LED ON
-    delay(200);                 // Short duration (200 milliseconds)
-    digitalWrite(ledPin, LOW);  // Turn the LED OFF
-    delay(200);                 // OFF duration between blinks
-  }
-
-
-  delay(300); //Small pause between letters
-
-
-  //2. LETTER 'O' (Three long blinks)
-  for (int i = 0; i < 3; i++) {
-    digitalWrite(ledPin, HIGH); // Turn the LED ON 
-    delay(600);                 // Long duration (600 milliseconds)
-    digitalWrite(ledPin, LOW);  // Turn the LED OFF
-    delay(600);                 // OFF duration between blinks
-  }
-
-
-  delay(300); //Small pause between letters
-
-
-  //3. LETTER 'S' (Three Short blinks)
-  for (int i = 0; i < 3; i++) {
-    digitalWrite(ledPin, HIGH); // Turn the LED ON
-    delay(200);                 // short duration (200 milliseconds)
-    digitalWrite(ledPin, LOW);  // Turn the LED OFF
-    delay(200);                 // Off duration between blink
-  }
-
-  //4. LONG PAUSE: (Wait 3 seconds before repeating the distress signal )
-  delay(3000);
-  
 } 
