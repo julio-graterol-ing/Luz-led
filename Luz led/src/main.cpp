@@ -1,50 +1,42 @@
 #include <Arduino.h>  //Required library for Arduino framework in PlatformIO
 
-//Hardware definition: Built-in Led is connected to digital pin 12
-const int  PIN_RED = 13;
-const int PIN_YELLOW = 12;
-const int PIN_GREEN = 11; 
+//Hardware pin assigment
+const int  PIN_BUTTON = 2; //Digital input connected to the button push circuit 
+const int PIN_LED = 13; //Digital output connected to the target feedback LED
 
-
-// Timing configuration in milliseconds
-const unsigned long TIME_RED = 5000; // Red light duration
-const unsigned long TIME_YELLOW = 2000; //Yellow light duration 
-const unsigned long TIME_GREEN = 5000; // Green light duration 
+//Varibles to Store system state
+int buttonState = 0; // Variable to hold the real-time electrical reading
 
 //SETUP: Runs once when the microcontroller starts or resets
 void setup() {
-  // Configure the digital pin as an OUTPUT to send voltage to the LED
-  pinMode(PIN_RED, OUTPUT);
-  pinMode(PIN_YELLOW, OUTPUT);
-  pinMode(PIN_GREEN, OUTPUT);
 
-  // START SERIAL COMMUNICATION: Set the speed to 9600 bits per second
+  // Initialize communication for physical diagnostics telemetry
   Serial.begin(9600);
+
+  // Pin peripherals configuration
+  pinMode(PIN_BUTTON, INPUT); //Configure as input to read external voltage status
+  pinMode(PIN_LED, OUTPUT); // Configured as output to control the LED drive
 
 }
 
 
 void loop() {
 
-  //STATE 1: Green light activate (Traffic flows)
-  digitalWrite(PIN_GREEN, HIGH);
-  digitalWrite(PIN_YELLOW, LOW);
-  digitalWrite(PIN_RED, LOW);
-  Serial.println("TRAFFIC LIGHT STATUS: GREEN - Go");
-  delay(TIME_GREEN);
-  
-  //STATE 2: Yellow light active (Warning / Transition)
-  digitalWrite(PIN_GREEN, LOW);
-  digitalWrite(PIN_YELLOW, HIGH);
-  digitalWrite(PIN_RED, LOW);
-  Serial.println("TRAFFIC LIGHT STATUS: YELLOW - Warning");
-  delay(TIME_YELLOW);
+  //Read the electrical digital state of pin 2(HIGH or LOW)
+  buttonState = digitalRead(PIN_BUTTON);
 
-  //STATE 3: Red light activate (Traffic stops)
-  digitalWrite(PIN_GREEN, LOW);
-  digitalWrite(PIN_YELLOW, LOW);
-  digitalWrite(PIN_RED, HIGH);
-  Serial.println("TRAFFIC LIGHT STATUS: RED - Stop");
-  delay(TIME_RED);
+  //Conditional logic engine evaluating the physical state
+  if (buttonState == HIGH) {
+    //If the button is pressed (5V is present at the pin)
+    digitalWrite(PIN_LED, HIGH);
+    Serial.println("INPUT DETECTED: Button pressed -> LED activated.");
+  }  else { 
+    //If the button is released (Pulled down to 0V ground)
+    digitalWrite(PIN_LED, LOW);
   
+  }
+
+  // Small delay to prevent telemetry buffer overflow on the Serial Monitor
+  delay(50);
+
 } 
