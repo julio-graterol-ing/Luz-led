@@ -1,11 +1,17 @@
 #include <Arduino.h>  //Required library for Arduino framework in PlatformIO
 
 //Hardware pin assigment
-const int  PIN_BUTTON = 2; //Digital input connected to the button push circuit 
-const int PIN_LED = 13; //Digital output connected to the target feedback LED
+const int PIN_POTENTIOMETER = A0; // Analog input pin for voltage reading 
+const int PIN_LED = 9; // PWM output pin for brightness control
 
-//Varibles to Store system state
-int buttonState = 0; // Variable to hold the real-time electrical reading
+//Variables for analog conversion
+int rawAnalogValue = 0; // Stores the raw 10 bit ADC value (0 to 1023)
+int mappedBrightness = 0; //Store the scaled 8 bit PW; value (0 to 255)
+
+// Non-blocking timer variables (Replacing delay)
+unsigned long previousMillis = 0; // Stores the last time telemetry was sent
+const unsigned long SERIAL_INTERVAL = 200; //Send data every 200 milliseconds
+
 
 //SETUP: Runs once when the microcontroller starts or resets
 void setup() {
@@ -14,29 +20,36 @@ void setup() {
   Serial.begin(9600);
 
   // Pin peripherals configuration
-  pinMode(PIN_BUTTON, INPUT); //Configure as input to read external voltage status
-  pinMode(PIN_LED, OUTPUT); // Configured as output to control the LED drive
-
+  pinMode(PIN_LED, OUTPUT); // PWM pin set as output
+  // Note: Analog pins configured with analogRead do not require pinMode setup
 }
 
 
 void loop() {
 
-  //Read the electrical digital state of pin 2(HIGH or LOW)
-  buttonState = digitalRead(PIN_BUTTON);
+  // 1. READ: Read the raw Voltage physical State (0V = 0, 5V = 1023)
+  rawAnalogValue = analogRead(PIN_POTENTIOMETER);
 
-  //Conditional logic engine evaluating the physical state
-  if (buttonState == HIGH) {
-    //If the button is pressed (5V is present at the pin)
-    digitalWrite(PIN_LED, HIGH);
-    Serial.println("INPUT DETECTED: Button pressed -> LED activated.");
-  }  else { 
-    //If the button is released (Pulled down to 0V ground)
-    digitalWrite(PIN_LED, LOW);
-  
+  // 2. PROCESS: Map 10 bit input scale (0-1023) to 8 bit PWM output scale (0-255)
+  mappedBrightness = map(rawAnalogValue, 0, 1023, 0, 255);
+
+  // 3. EXECUTE: Write the analog-like voltage variance to the BLUE LED
+  analogWrite(PIN_LED, mappedBrightness);
+
+  // 4. TELEMETRY: Non-Blocking time checker using millis()
+  unsigned long currentMillis = millis(); // Grab current internal systen time
+
+  // Check if 200ms have passed since the last print
+  if (currentMillis - previousMillis >= SERIAL_INTERVAL) {
+    //Save the timestamp of this execution
+    previousMillis = currentMillis;
+
+    //Send  perfomance diagnostic data to the screen
+    Serial.print ("ADC Raw Output: ");
+    Serial.print(rawAnalogValue);
+    Serial.print(" | PWM Drive: ");
+    Serial.println(mappedBrightness);
+
   }
-
-  // Small delay to prevent telemetry buffer overflow on the Serial Monitor
-  delay(50);
 
 } 
