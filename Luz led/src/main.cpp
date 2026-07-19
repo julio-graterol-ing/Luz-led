@@ -5,13 +5,12 @@ const int PIN_POTENTIOMETER = A0; // Analog input pin for voltage reading
 const int PIN_LED = 9; // PWM output pin for brightness control
 
 //Variables for analog conversion
-int rawAnalogValue = 0; // Stores the raw 10 bit ADC value (0 to 1023)
-int mappedBrightness = 0; //Store the scaled 8 bit PW; value (0 to 255)
+int rawAnalogValue = 0; // Keeps track of the current LED state (ON/OFF)
+int ledState = LOW; // Holds the raw reading from the potentiometer
 
-// Non-blocking timer variables (Replacing delay)
+// Asynchronous Timing Variables (Non-blocking)
 unsigned long previousMillis = 0; // Stores the last time telemetry was sent
-const unsigned long SERIAL_INTERVAL = 200; //Send data every 200 milliseconds
-
+unsigned long blinkInterval = 500; // Dynamic variable for the blink speed
 
 //SETUP: Runs once when the microcontroller starts or resets
 void setup() {
@@ -21,35 +20,45 @@ void setup() {
 
   // Pin peripherals configuration
   pinMode(PIN_LED, OUTPUT); // PWM pin set as output
-  // Note: Analog pins configured with analogRead do not require pinMode setup
+  
 }
 
 
 void loop() {
 
-  // 1. READ: Read the raw Voltage physical State (0V = 0, 5V = 1023)
+  // 1. READ: Monitor the physical position of the knob (0 to 1023)
   rawAnalogValue = analogRead(PIN_POTENTIOMETER);
 
-  // 2. PROCESS: Map 10 bit input scale (0-1023) to 8 bit PWM output scale (0-255)
-  mappedBrightness = map(rawAnalogValue, 0, 1023, 0, 255);
+  // 2. PROCESS: Map the analog reading to a dynamic time interval (100ms to 2000ms)
+  blinkInterval = map(rawAnalogValue, 0, 1023, 100, 2000);
 
-  // 3. EXECUTE: Write the analog-like voltage variance to the BLUE LED
-  analogWrite(PIN_LED, mappedBrightness);
+  // 3. ASYNCHRONOUS ENGINE: Check if the dybamically calculated interval has passed
+  unsigned long currentMillis = millis();
 
-  // 4. TELEMETRY: Non-Blocking time checker using millis()
-  unsigned long currentMillis = millis(); // Grab current internal systen time
 
-  // Check if 200ms have passed since the last print
-  if (currentMillis - previousMillis >= SERIAL_INTERVAL) {
-    //Save the timestamp of this execution
+  if (currentMillis - previousMillis >= blinkInterval) {
+    //Save the timestamp of the next cycle
     previousMillis = currentMillis;
 
-    //Send  perfomance diagnostic data to the screen
-    Serial.print ("ADC Raw Output: ");
-    Serial.print(rawAnalogValue);
-    Serial.print(" | PWM Drive: ");
-    Serial.println(mappedBrightness);
+    //Toggle the LED state using bitwise or logical inversion
+    if(ledState == LOW) {
+      ledState = HIGH;
+    } else {
+      ledState = LOW;
+    }
+    
+  // Apply the new state to the physical hardware
+  digitalWrite(PIN_LED, ledState);
 
-  }
+    }
+
+    //Telemetry: Print current status and interval speed in real-time
+    Serial.print ("Potentiometer Raw: ");
+    Serial.print(rawAnalogValue);
+    Serial.print(" | Dynamic Blink Interval:");
+    Serial.print(blinkInterval);
+    Serial.println(" ms");
+
+  
 
 } 
