@@ -1,64 +1,70 @@
-#include <Arduino.h>  //Required library for Arduino framework in PlatformIO
+#include <Arduino.h> //Required library for Arduino framework in PlatformIO
+#include <NewPing.h> // Professional non Blocking ultrasonic library
 
-//Hardware pin assigment
-const int PIN_POTENTIOMETER = A0; // Analog input pin for voltage reading 
-const int PIN_LED = 9; // PWM output pin for brightness control
+// Hardware pin assigment
+const int PIN_TRIGGER = 12; // Outbound ultrasonic pulse pin
+const int PIN_ECHO = 11;    // Inbound ultrasonic return pin
+const int PIN_LED = 13;     // Proximity alert indicator LED
 
-//Variables for analog conversion
-int rawAnalogValue = 0; // Keeps track of the current LED state (ON/OFF)
-int ledState = LOW; // Holds the raw reading from the potentiometer
+// Maximum distance we want to ping for (in centimeters). Macimum sensor limit is 400-500cm
+const int MAX_DISTANCE = 200;
 
-// Asynchronous Timing Variables (Non-blocking)
-unsigned long previousMillis = 0; // Stores the last time telemetry was sent
-unsigned long blinkInterval = 500; // Dynamic variable for the blink speed
+// NewPing instance setup using our hardware configuration
+NewPing sonar(PIN_TRIGGER, PIN_ECHO, MAX_DISTANCE);
 
-//SETUP: Runs once when the microcontroller starts or resets
-void setup() {
+// System State Variables
+unsigned int distanceCm = 0; // Stores the real time distance in centimeters
+
+// Non blocking Telemetry Timer Variables
+unsigned long previousMillis = 0;         // Stores the last time telemetry was sent
+const unsigned long RADAR_INTERVAL = 150; // Sample and print distance
+
+// SETUP: Runs once when the microcontroller starts or resets
+void setup()
+{
 
   // Initialize communication for physical diagnostics telemetry
   Serial.begin(9600);
 
   // Pin peripherals configuration
   pinMode(PIN_LED, OUTPUT); // PWM pin set as output
-  
 }
 
+void loop()
+{
 
-void loop() {
-
-  // 1. READ: Monitor the physical position of the knob (0 to 1023)
-  rawAnalogValue = analogRead(PIN_POTENTIOMETER);
-
-  // 2. PROCESS: Map the analog reading to a dynamic time interval (100ms to 2000ms)
-  blinkInterval = map(rawAnalogValue, 0, 1023, 100, 2000);
-
-  // 3. ASYNCHRONOUS ENGINE: Check if the dybamically calculated interval has passed
+  // Non blocking execution time checker
   unsigned long currentMillis = millis();
 
-
-  if (currentMillis - previousMillis >= blinkInterval) {
-    //Save the timestamp of the next cycle
+  if (currentMillis - previousMillis >= RADAR_INTERVAL)
+  {
     previousMillis = currentMillis;
 
-    //Toggle the LED state using bitwise or logical inversion
-    if(ledState == LOW) {
-      ledState = HIGH;
-    } else {
-      ledState = LOW;
+    // 1. Read & Process: Send a ping, get return time and convert directly to centimeters
+    distanceCm = sonar.ping_cm();
+
+    // 2. Conditional Logic: Evaluate proximity thresholds
+    // If an object is detected closer than 15 centimeters (ignoring 0 wich means out og range)
+    if (distanceCm < 15 && distanceCm > 0)
+    {
+      digitalWrite(PIN_LED, HIGH); // Activate visual ganger alert
+      Serial.print("WARNING! Object detected at: ");
     }
-    
-  // Apply the new state to the physical hardware
-  digitalWrite(PIN_LED, ledState);
-
+    else
+    {
+      digitalWrite(PIN_LED, LOW); // Clear visual alert
+      Serial.print("Safe zone. Distance: ");
     }
 
-    //Telemetry: Print current status and interval speed in real-time
-    Serial.print ("Potentiometer Raw: ");
-    Serial.print(rawAnalogValue);
-    Serial.print(" | Dynamic Blink Interval:");
-    Serial.print(blinkInterval);
-    Serial.println(" ms");
-
-  
-
-} 
+    // 3.Telemetry Output: Print the final engineering values
+    if (distanceCm == 0)
+    {
+      Serial.println("Out of range or no obstacle");
+    }
+    else
+    {
+      Serial.print(distanceCm);
+      Serial.println(" cm");
+    }
+  }
+}
