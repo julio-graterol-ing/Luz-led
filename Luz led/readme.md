@@ -16,9 +16,16 @@ This repository contains an evolving, production-grade codebase detailing my tra
 ## 📊 Technical Milestones & Architecture Evolution
 
 ### 📦 Phase 3: Multi-Digit Displays & Hardware Calibration (Latest Updates)
+### 📦 Phase 3: Multi-Digit Displays & Hardware Calibration (Latest Updates)
+
 * **July 27, 2026 | Custom Display Cascading Character Arrays:** 
+  
+  **Project: 4-Digit Multiplexed Array Exploration.**  
+  In this module, I explored both bare-metal implementation and third-party library abstraction. First, I coded a custom multiplexing software engine from scratch using raw binary matrix mapping to understand pin routing and time-slice synchronization (`millis()`). Later, to optimize production and account for the non-sequential hardware pinout constraints of the 5461AS common-cathode display, I integrated the professional `SevSeg.h` library, managing advanced character array buffer operations (`setChars()`) for a clean cascading animation effect.
+
   * *The Bottleneck:* Integrated a 4-Digit 7-Segment screen (Model 5461AS) featuring a non-sequential, crossed internal pinout layout from the manufacturer.
   * *The Engineering Fix:* Designed a step-by-step diagnostic script to trace raw data ports, routed 4 strategic resistors directly on the segment nodes to balance the current, and implemented a custom **Asynchronous State Machine** with `SevSeg.h` and `.setChars()`. It delivers a clean, flicker-free cascading animation (`1...2...3...4` -> Blank -> `5...6...7...8`) without memory-hogging leading zeros.
+
 * **July 23, 2026 | Parallel LCD & Climate Sensing Integration:** 
   * Built a standalone telemetry station combining a 16-pin parallel LCD1602 with a DHT11 climate sensor. Resolved bus corruption artifacts (ghosting/strange symbols) via software re-indexing and contrast tuning using an analog potentiometer.
 
