@@ -15,8 +15,26 @@ This repository contains an evolving, production-grade codebase detailing my tra
 
 ## 📊 Technical Milestones & Architecture Evolution
 
+
 ### 📦 Phase 3: Multi-Digit Displays & Hardware Calibration (Latest Updates)
-### 📦 Phase 3: Multi-Digit Displays & Hardware Calibration (Latest Updates)
+
+* **July 30, 2026 | Object-Oriented Firmware Modularization (Architecture Shift):** 
+
+  **Project: Custom Multi-Subsystem Driver Refactoring.**  
+  In this module, I executed a complete architectural refactoring of the concurrent multi-peripheral firmware. Moving away from a monolithic codebase, I applied Object-Oriented Programming (OOP) design patterns to abstract physical hardware devices into independent, standalone driver modules utilizing strict C++ Class encapsulation.
+
+  * *The Bottleneck:* Maintaining a growing single-file (`main.cpp`) concurrent code structure makes the firmware unstable, extremely difficult to scale, prone to global variable scope pollution, and non-portable for 32-bit cross-compilation architectures.
+  * *The Engineering Fix:* Isolated the software sub-systems into dedicated header/implementation pairs: `ClimateSensor` (`.h`/`.cpp`) for the DHT11 digital bus, `ServoMotion` (`.h`/`.cpp`) for the SG90 kinematics, and `DisplayCore` (`.h`/`.cpp`) for the 5461AS multiplexing matrix. All memory scopes were encapsulated using `private` visibility registers and communication handles. The master loop scheduler inside `main.cpp` was reduced to an unpolluted, production-grade template of **only 15 lines of code**, achieving maximum modular portability before migrating toward the ESP32 ecosystem.
+
+
+* **July 28, 2026 | Asynchronous Multisystem Integration (The Core Engine):** 
+
+  **Project: Real-Time Concurrent Multi-Periferal Station.**  
+  Developed a multi-process asynchronous scheduling architecture utilizing an independent time-slicing method (`millis()`) to concurrently drive three hardware sub-systems with zero processing stalls. The design acts as a handcrafted lightweight RTOS (Real-Time Operating System) conceptual prototype, isolating background execution loops from high-speed peripheral refresh cycles.
+
+  * *The Bottleneck:* Merging a 4-Digit 7-Segment multiplexed array (5461AS) with a digital DHT11 climate sensor and an analog Servo Motor (SG90) generated severe hardware timer collisions and pin starvation, causing segment flickering, sluggish motor response, and `NaN` communication drops over the `PORTC` bus.
+  * *The Engineering Fix:* Executed a full hardware re-mapping by isolating the servo to pin `A0` and the DHT11 to pin `A4`. Implemented strict 6-byte string allocation formatting via `sprintf()` to prevent dangerous **Buffer Overflows** within the SRAM registers. The final firmware successfully drives smooth $180^\circ$ servo kinematics, reads active environmental values, and multi-plexes telemetry data every 3 seconds (`t  26` / `h  50`) with homogeneous brightness and zero processor delays.
+
 
 * **July 27, 2026 | Custom Display Cascading Character Arrays:** 
   
@@ -48,11 +66,19 @@ This repository contains an evolving, production-grade codebase detailing my tra
 ## 📂 Project Structure
 
 ```text
+├── include/
+│   ├── Climate.h          # Custom climate sensor interface header
+│   ├── DisplayCore.h      # Custom 5461AS display matrix control header
+│   └── Motion.h           # Custom SG90 servo kinematics controller header
 ├── src/
-│   └── main.cpp           # Active production firmware under development
+│   ├── main.cpp           # Ultra-clean production software scheduler (15 lines)
+│   ├── Climate.cpp        # Custom climate sensor implementation source
+│   ├── DisplayCore.cpp    # Custom 5461AS multiplexing source code
+│   └── Motion.cpp         # Custom SG90 servo positional execution code
 ├── historical_code/       # Protected baseline iterations of past exercises
 ├── platformio.ini         # Strict dependency registry & compiler flags
 └── README.md              # Core engineering documentation
+
 ```
 
 ---
