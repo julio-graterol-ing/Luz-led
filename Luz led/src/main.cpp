@@ -1,33 +1,17 @@
 #include <Arduino.h>
-#include "Climate.h"
-#include "Motion.h"
-#include "DisplayCore.h"
 
-//instantiate core system modular drivers
-ClimateSensor climate;
-ServoMotion motion;
-DisplayCore displayModule;
+//Hardware output pin definition
+#define VOLTAGE_SOURCE_PIN 3
 
 void setup() {
-  Serial.begin(9600);
+  //Configure the execution pin as a pure digital output
+  pinMode(VOLTAGE_SOURCE_PIN, OUTPUT);
 
-  //Initialize all detached hardware subsystems
-  climate.init();
-  motion.init();
-  displayModule.init();
+  //Force the pin to hold a constant high state steady 5V output
+  digitalWrite(VOLTAGE_SOURCE_PIN, HIGH);
+
 }
 
 void loop() {
-  //Critical task high speed multiplexing refresh engine
-  displayModule.refresh();
-
-  unsigned long currentMillis = millis();
-
-  //Process all asynchronous time sliced task in parallel
-  climate.update(currentMillis);
-  motion.update(currentMillis);
-
-  //Fetch real time data using getter and update the graphics core
-  displayModule.updateData(currentMillis, climate.getTemperature(), climate.getHumidity());
-  
+  //No execution changes needed inside the main loop for voltage calibration
 }
