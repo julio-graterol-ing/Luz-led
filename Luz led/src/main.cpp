@@ -1,17 +1,28 @@
 #include <Arduino.h>
 
-//Hardware output pin definition
-#define VOLTAGE_SOURCE_PIN 3
-
 void setup() {
-  //Configure the execution pin as a pure digital output
-  pinMode(VOLTAGE_SOURCE_PIN, OUTPUT);
+  // Esp32 telemetry requires a hig speed baud rate
+  Serial.begin(115200);
 
-  //Force the pin to hold a constant high state steady 5V output
-  digitalWrite(VOLTAGE_SOURCE_PIN, HIGH);
+  //Print micro architecture specification on boot
+  Serial.println("==========================================");
+  Serial.println("   ESP32 32 BIT ARCHITECTURE INITIALIZED  ");
+  Serial.println("==========================================");
+
+  //Fetch and display CPU current clock speed (Should print 240 MHz)
+  Serial.print("[STATUS] CPU Clock Frequency: ");
+  Serial.print(getCpuFrequencyMhz());
+  Serial.println ("MHz");
 
 }
 
 void loop() {
-  //No execution changes needed inside the main loop for voltage calibration
+  // Asynchronous message loop to test execution ticks
+  static unsigned long previousMillis = 0;
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - previousMillis >= 5000) {
+    previousMillis = currentMillis;
+    Serial.println("[HEADBEAT] 32 bit Concurrent loop running active");
+  }
 }

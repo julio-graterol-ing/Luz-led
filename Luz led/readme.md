@@ -17,6 +17,14 @@ This repository contains an evolving, production-grade codebase detailing my tra
 
 
 ### 📦 Phase 3: Multi-Digit Displays & Hardware Calibration (Latest Updates)
+* **July 31, 2026 | Safe Hardware Voltage Divider Shield (Pre-ESP32 Calibration):**
+  
+  **Project: Low-Level Over-Voltage Attenuation Circuit.**  
+  Designed and calibrated a hardware voltage divider loop to step down the 5V logic signals from the ATmega328P to a safe, non-destructive 3.3V threshold required by 32-bit silicon architectures like the ESP32. 
+
+  * *The Engineering Fix:* Formulated the attenuation model utilizing a 1k-ohm input resistor and a 2k-ohm pull-down resistor. Validated the nodes using an AstroAI AM33D digital multimeter configured in the 20V DC range, measuring a stable 2.97V output at the central junction. This setup guarantees noise immunity, satisfies the V_IH minimum threshold of 2.4V, and shields the upcoming ESP32 GPIO pins from electrical degradation.
+
+
 
 * **July 30, 2026 | Object-Oriented Firmware Modularization (Architecture Shift):** 
 
